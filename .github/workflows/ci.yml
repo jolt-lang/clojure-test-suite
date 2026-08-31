@@ -147,6 +147,20 @@ jobs:
   # mechanism so that we can enable all of these again, and more, and get nice reports
   # about their compatibility.
   #
+  #test-jolt:
+  #  runs-on: ubuntu-latest
+  #  steps:
+  #    - uses: actions/checkout@v6
+
+  #    - name: Install jolt
+  #      run: |
+  #        curl -sL https://raw.githubusercontent.com/jolt-lang/jolt/main/install \
+  #          | bash -s -- --dir /usr/local/bin
+  #        jolt -e '(+ 1 2)'
+
+  #    - name: Run Jolt tests
+  #      run: jolt -M:jolt
+
   #test-basilisp:
   #  runs-on: ubuntu-latest
   #  steps:

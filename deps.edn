@@ -2,4 +2,7 @@
  :aliases
  {;; Jolt runs the suite through its own runner; see doc/jolt.md.
   :jolt {:extra-paths ["jolt"]
-         :main-opts ["-m" "jolt-runner" "test"]}}}
+         :main-opts ["-m" "jolt-runner" "test"]}
+  ;; Diffs a `--report` run against jolt/baseline.txt.
+  :jolt-compare {:extra-paths ["jolt"]
+                 :main-opts ["-m" "compare-baseline"]}}}

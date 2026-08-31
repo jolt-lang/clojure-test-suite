@@ -44,6 +44,31 @@
              :task (do
                     (banner "Running Jolt Tests")
                     (shell "jolt -M:jolt"))}
+  jolt-baseline {:doc "Regenerates jolt/baseline.txt from a Jolt run"
+                 :task (do
+                        (banner "Regenerating Jolt baseline")
+                        (shell {:out "jolt-report.txt" :continue true} "jolt -M:jolt --report")
+                        (let [lines (->> (slurp "jolt-report.txt")
+                                         clojure.string/split-lines
+                                         (filter (fn [l] (clojure.string/starts-with? l "CTS ")))
+                                         (map (fn [l] (clojure.string/split l (re-pattern "\\s+"))))
+                                         (filter (fn [p] (not= "0" (nth p 3)) ))
+                                         (map (fn [p] (str (nth p 1) " " (nth p 3) " " (nth p 4)))))
+                              errs (->> (slurp "jolt-report.txt")
+                                        clojure.string/split-lines
+                                        (filter (fn [l] (clojure.string/starts-with? l "CTS ")))
+                                        (map (fn [l] (clojure.string/split l (re-pattern "\\s+"))))
+                                        (filter (fn [p] (and (= "0" (nth p 3)) (not= "0" (nth p 4)))))
+                                        (map (fn [p] (str (nth p 1) " " (nth p 3) " " (nth p 4)))))]
+                         (spit "jolt/baseline.txt"
+                               (str "# Jolt conformance baseline: <namespace> <fail> <error>\n"
+                                    "# A namespace not listed here is expected to be clean.\n"
+                                    "# Regenerate with: bb jolt-baseline\n"
+                                    (clojure.string/join "\n" (sort (concat lines errs)))
+                                    "\n"))
+                         (println "wrote jolt/baseline.txt:"
+                                  (count (concat lines errs)) "namespaces"))
+                        (babashka.fs/delete-if-exists "jolt-report.txt"))}
   test-all {:doc "Run tests under all dialects"
             :task (do
                    (run 'test-jvm)

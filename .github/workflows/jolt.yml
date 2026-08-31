@@ -1,0 +1,89 @@
+name: jolt
+
+# Conformance run for Jolt development. Jolt does not pass this suite and is
+# not meant to: most of what fails is a deliberate divergence (one
+# exact-integer type, one flonum type, a vendored regex engine, no JVM
+# arrays). So this workflow does not gate on green. It gates on MOVEMENT
+# against jolt/baseline.txt:
+#
+#   a namespace that got worse  -> fails the run
+#   a namespace that got better -> reported, with the baseline lines to paste,
+#                                  and the run still passes
+#
+# The readable result is in the job's Summary tab, not buried in the log.
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      jolt-version:
+        description: 'Jolt version to test, e.g. 0.7.29. Blank installs the latest release.'
+        required: false
+        default: ''
+
+# A second push to the same branch cancels the first; only the tip matters here.
+concurrency:
+  group: jolt-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  conformance:
+    name: clojure.core conformance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install Jolt
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.local/bin"
+          version="${{ github.event.inputs.jolt-version }}"
+          if [ -n "$version" ]; then
+            curl -sL https://raw.githubusercontent.com/jolt-lang/jolt/main/install \
+              | bash -s -- --dir "$HOME/.local/bin" --version "$version"
+          else
+            curl -sL https://raw.githubusercontent.com/jolt-lang/jolt/main/install \
+              | bash -s -- --dir "$HOME/.local/bin"
+          fi
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Report Jolt version
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "JOLT_VERSION=$(jolt --version)" >> "$GITHUB_ENV"
+          jolt --version
+          jolt -e '(println "sanity:" (+ 1 2))'
+
+      - name: Run the suite
+        shell: bash
+        run: |
+          # The runner exits 1 whenever anything fails, which is the normal
+          # state here, so its status is deliberately not the gate. The
+          # baseline comparison below is. Capture the code for the summary.
+          set +e
+          jolt -M:jolt --report > report.txt 2>&1
+          echo "runner exit: $?"
+          echo "CTS lines: $(grep -c '^CTS ' report.txt)"
+          grep '^TOTAL' report.txt || true
+
+      - name: Compare against baseline
+        shell: bash
+        run: |
+          set -o pipefail
+          {
+            echo "> Jolt \`${JOLT_VERSION}\` · commit \`${GITHUB_SHA:0:7}\`"
+            echo
+          } >> "$GITHUB_STEP_SUMMARY"
+          jolt -M:jolt-compare report.txt jolt/baseline.txt | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload full report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jolt-conformance-report
+          path: report.txt
+          retention-days: 30

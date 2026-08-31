@@ -60,7 +60,7 @@
                             #{::t ::p-1} 'ns/p-0
                             #{::t ::p-1 ::p-2 'ns/p-0} ::root
                             #{::t} ::p-2
-                            #{#?(:bb 'clojure.core_test.descendants/TestDescendantsRecord :default TestDescendantsRecord)} ::record))
+                            #{#?(:jolt TestDescendantsRecord :bb 'clojure.core_test.descendants/TestDescendantsRecord :default TestDescendantsRecord)} ::record))
 
       (testing "cannot get descendants by type inheritance"
         #?@(:lpy
@@ -95,9 +95,11 @@
                               nil diamond ::d
                               #{::d} diamond ::b
                               #{::b ::c ::d} diamond ::a
-                              #?(:bb      #{'clojure.core_test.descendants/TestDescendantsRecord 'clojure.core_test.descendants/TestDescendantsType}
+                              #?(:jolt    #{TestDescendantsRecord TestDescendantsType}
+                                 :bb      #{'clojure.core_test.descendants/TestDescendantsRecord 'clojure.core_test.descendants/TestDescendantsType}
                                  :default #{TestDescendantsRecord TestDescendantsType}) datatypes ::datatype
-                              #?(:bb      #{'clojure.core_test.descendants/TestDescendantsType}
+                              #?(:jolt    #{TestDescendantsType}
+                                 :bb      #{'clojure.core_test.descendants/TestDescendantsType}
                                  :default #{TestDescendantsType}) datatypes ::mutable
 
                               ; tag in both h and global hierarchy, only descendants in h are returned

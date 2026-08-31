@@ -65,9 +65,11 @@
                             #{::p-1 ::p-2 'ns/p-0} ::t
                             #{'ns/p-0} ::p-1
                             nil ::p-2)
-        #?(:bb      "bb doesn't report ancestors by relationship globally defined with derive for custom types
-                     (https://github.com/babashka/babashka/issues/1893)"
-           :default (is (= #{::record ::object} (->> (ancestors TestAncestorsRecord)
+        ;; bb doesn't report ancestors by relationship globally defined with
+        ;; derive for custom types (babashka/babashka#1893). jolt does, so the
+        ;; conditional picks a flag rather than skipping the body it also reads.
+        (when #?(:jolt true :bb false :default true)
+          (is (= #{::record ::object} (->> (ancestors TestAncestorsRecord)
                                                      (filter keyword?) ; filter out parents by type, tested in next sections
                                                      set)))))
 
@@ -76,9 +78,10 @@
            :cljs "cljs doesn't report ancestors by type inheritance yet (CLJS-3464)"
            :clj  (is (contains? (ancestors ChildT) AncestorT))))
 
-      #?(:bb      "bb doesn't report ancestors by type inheritance for custom types"
-         :cljs    "cljs doesn't report ancestors by type inheritance yet (CLJS-3464)"
-         :default (testing "returns ancestors by type inheritance when tag is a custom type"
+      ;; bb doesn't report ancestors by type inheritance for custom types;
+      ;; cljs doesn't either yet (CLJS-3464). jolt does.
+      (when #?(:jolt true :bb false :cljs false :default true)
+        (testing "returns ancestors by type inheritance when tag is a custom type"
                     (is (contains? (ancestors TestAncestorsType) #?(:lpy (:interface TestAncestorsProtocol) :phel TestAncestorsProtocol :default clojure.core_test.ancestors.TestAncestorsProtocol)))
                     (is (contains? (ancestors TestAncestorsRecord) #?(:lpy (:interface TestAncestorsProtocol) :phel TestAncestorsProtocol :default clojure.core_test.ancestors.TestAncestorsProtocol)))
                     (is (contains? (ancestors TestAncestorsRecord) #?(:lpy basilisp.lang.interfaces/IAssociative :phel Phel.Lang.Collections.Map.PersistentMapInterface :default clojure.lang.Associative)))
@@ -110,6 +113,7 @@
                               #{} diamond ::a
                               #?@(; bb doesn't report ancestors by relationship declared in h for custom types
                                   ; (https://github.com/babashka/babashka/issues/1893)
+                                  :jolt    [#{::datatype ::mutable ::type} datatypes TestAncestorsType]
                                   :bb      []
                                   :default [#{::datatype ::mutable ::type} datatypes TestAncestorsType])
 
@@ -117,6 +121,7 @@
                               #{::a ::b ::c ::d} diamond ::leaf
                               #?@(; bb doesn't report ancestors by relationship declared in h for custom types
                                   ; (https://github.com/babashka/babashka/issues/1893)
+                                  :jolt    [#{::datatype ::type} datatypes TestAncestorsRecord]
                                   :bb      []
                                   :default [#{::datatype ::type} datatypes TestAncestorsRecord])
 
@@ -139,9 +144,10 @@
                              diamond
                              datatypes)))
 
-      #?(:bb      "bb doesn't report ancestors by type inheritance for custom types"
-         :cljs    "cljs doesn't report ancestors by type inheritance yet (CLJS-3464)"
-         :default (testing "returns ancestors by type inheritance when tag is a custom type, whether the tag is in h or not"
+      ;; bb doesn't report ancestors by type inheritance for custom types;
+      ;; cljs doesn't either yet (CLJS-3464). jolt does.
+      (when #?(:jolt true :bb false :cljs false :default true)
+        (testing "returns ancestors by type inheritance when tag is a custom type, whether the tag is in h or not"
                     (are [h tag] (let [actual-ancestors (ancestors h tag)]
                                    (and (contains? actual-ancestors #?(:lpy (:interface TestAncestorsProtocol) :phel TestAncestorsProtocol :default clojure.core_test.ancestors.TestAncestorsProtocol))
                                         (contains? actual-ancestors #?(:lpy basilisp.lang.interfaces/IAssociative :phel Phel.Lang.Collections.Map.PersistentMapInterface :default clojure.lang.Associative))))

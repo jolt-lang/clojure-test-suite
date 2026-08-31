@@ -60,15 +60,18 @@
                           nil nil
                           ::tag nil))
 
-      #?(:bb      "bb allows non-namespaced tags"           ; https://github.com/babashka/babashka/issues/1890
-         :cljs    "cljs allows non-namespaced tags"         ; https://ask.clojure.org/index.php/14759/derive-tag-parent-accepts-namespaced-keyword-symbol-parent
-         :default (testing "non-namespaced tag"
+      ;; bb allows non-namespaced tags (babashka/babashka#1890); so does cljs
+      ;; (ask.clojure.org/index.php/14759). jolt raises like the JVM, and it
+      ;; reads :bb, so the conditional selects a flag instead of a body.
+      (when #?(:jolt true :bb false :cljs false :default true)
+        (testing "non-namespaced tag"
                     (are [tag parent] (p/thrown? (derive tag parent))
                                       :a ::b
                                       'a 'n/b)))
 
-      #?(:bb      "bb allows non-namespaced parents"        ; https://github.com/babashka/babashka/issues/1890
-         :default (testing "non-namespaced parent"
+      ;; bb allows non-namespaced parents (babashka/babashka#1890). jolt raises.
+      (when #?(:jolt true :bb false :default true)
+        (testing "non-namespaced parent"
                     (are [tag parent] (p/thrown? (derive tag parent))
                                       :a :b
                                       ::a :b

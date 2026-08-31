@@ -161,8 +161,10 @@
          (is (p/thrown? (/ 1/2 nil)))
          (is (p/thrown? (/ nil 1/2)))))
 
-    #?(:bb nil ;; bb always uses boxed args, which always throws in JVM Clojure
-       :default
+    ;; bb always uses boxed args, which always throws in JVM Clojure. The
+    ;; conditional selects a flag rather than the body so jolt, which also
+    ;; reads :bb, can opt in without duplicating the table below.
+    (when #?(:jolt true :bb false :default true)
        (testing "inf-nan"
          (are [expected x y] (= expected (/ x y))
            ##Inf  ##Inf  1

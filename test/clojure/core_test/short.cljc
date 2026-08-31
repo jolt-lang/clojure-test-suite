@@ -73,7 +73,13 @@
 
         :default
         [;; `short` throws outside the range of 32767 ... -32768.
-         #?@(:bb []
+         #?@(:jolt
+             ;; jolt raises here as the JVM does, and it reads :bb, so it goes first.
+             [(is (p/thrown? (short -32768.000001)))
+              (is (p/thrown? (short -32769)))
+              (is (p/thrown? (short 32768)))
+              (is (p/thrown? (short 32767.000001)))]
+             :bb []
              :clj
              [(is (p/thrown? (short -32768.000001)))
               (is (p/thrown? (short -32769)))

@@ -17,7 +17,13 @@
 (defn big-int? [n]
   ;; In CLJS, all numbers are really doubles and integer? and int?
   ;; return true if the fractional part of the double is zero
-  #?(:cljs (integer? n)
+  ;; jolt unifies every integer as one exact-integer type, so `int?` answers
+  ;; true for a bignum and the :default test below reports false for a real
+  ;; BigInt. `instance?` is not a workaround either: (instance? clojure.lang.BigInt
+  ;; 10N) is false. Note a small bigint literal genuinely IS a Long in jolt, so
+  ;; this correctly stays false for 10N and only fires past 64-bit range.
+  #?(:jolt (= (type n) clojure.lang.BigInt)
+     :cljs (integer? n)
      :lpy (integer? n)
      :phel (integer? n)
      :jank (cpp/jank.runtime.is_big_integer n)

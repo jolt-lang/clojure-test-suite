@@ -59,9 +59,11 @@
                             #{::p-1 ::p-2} ::t
                             #{'ns/p-0} ::p-1
                             nil ::p-2)
-        #?(:bb      "bb doesn't report parents by relationship globally defined with derive for custom types
-                     (https://github.com/babashka/babashka/issues/1893)"
-           :default (is (contains? (parents TestParentsRecord) ::record))))
+        ;; bb doesn't report parents by relationship globally defined with
+        ;; derive for custom types (babashka/babashka#1893). jolt does, so the
+        ;; conditional picks a flag rather than skipping a body it also reads.
+        (when #?(:jolt true :bb false :default true)
+          (is (contains? (parents TestParentsRecord) ::record))))
 
       #?(:lpy     (testing "returns parents by type inheritance when tag is a class"
                     (is (contains? (parents python/str) python/object))
@@ -74,9 +76,10 @@
                     (is (contains? (parents String) Object))
                     (is (nil? (parents Object)))))
 
-      #?(:bb      "bb doesn't report parents by type inheritance for custom types"
-         :cljs    "cljs doesn't report parents by type inheritance yet (CLJS-3464)"
-         :default (testing "returns parents by type inheritance when tag is a custom type"
+      ;; bb doesn't report parents by type inheritance for custom types;
+      ;; cljs doesn't either yet (CLJS-3464). jolt does.
+      (when #?(:jolt true :bb false :cljs false :default true)
+        (testing "returns parents by type inheritance when tag is a custom type"
                     (is (contains? (parents TestParentsType) #?(:lpy (:interface TestParentsProtocol) :phel TestParentsProtocol :default clojure.core_test.parents.TestParentsProtocol)))
                     (is (contains? (parents TestParentsRecord) #?(:lpy (:interface TestParentsProtocol) :phel TestParentsProtocol :default clojure.core_test.parents.TestParentsProtocol)))
                     (is (nil? (parents TestParentsProtocol)))))
@@ -107,6 +110,7 @@
                               #{} diamond ::a
                               #?@(; bb doesn't report parents by relationship declared in h for custom types
                                   ; (https://github.com/babashka/babashka/issues/1893)
+                                  :jolt    [#{::datatype ::mutable} datatypes TestParentsType]
                                   :bb      []
                                   :default [#{::datatype ::mutable} datatypes TestParentsType])
 
@@ -114,6 +118,7 @@
                               #{::d} diamond ::leaf
                               #?@(; bb doesn't report parents by relationship declared in h for custom types
                                   ; (https://github.com/babashka/babashka/issues/1893)
+                                  :jolt    [#{::datatype} datatypes TestParentsRecord]
                                   :bb      []
                                   :default [#{::datatype} datatypes TestParentsRecord])
 
@@ -150,9 +155,10 @@
                              diamond
                              datatypes)))
 
-      #?(:bb      "bb doesn't report parents by type inheritance for custom types"
-         :cljs    "cljs doesn't report parents by type inheritance yet (CLJS-3464)"
-         :default (testing "returns parents by type inheritance when tag is a custom type, whether the tag is in h or not"
+      ;; bb doesn't report parents by type inheritance for custom types;
+      ;; cljs doesn't either yet (CLJS-3464). jolt does.
+      (when #?(:jolt true :bb false :cljs false :default true)
+        (testing "returns parents by type inheritance when tag is a custom type, whether the tag is in h or not"
                     (are [h tag] (contains? (parents h tag) #?(:lpy (:interface TestParentsProtocol) :phel TestParentsProtocol :default clojure.core_test.parents.TestParentsProtocol))
                                  ; tag in h
                                  datatypes TestParentsType

@@ -27,6 +27,7 @@ If possible, install them all and run the tests against each dialect before subm
 4. [Clojure CLR](clojureclr.md)
 5. [Basilisp](basilisp.md)
 6. [Phel](phel.md)
+7. [Jolt](jolt.md)
 
 ## How to Write a New Test
 
@@ -133,6 +134,7 @@ $ bb test-cljr       # run tests under ClojureCLR
 $ bb test-bb         # run tests under Babashka
 $ bb test-lpy        # run tests under Basilisp
 $ bb test-phel       # run tests under Phel
+$ bb test-jolt       # run tests under Jolt
 $ bb test-all        # run tests for all dialects (sequentially)
 ```
 
@@ -231,7 +233,8 @@ Here are some things to do and think about when you're writing tests.
 When using reader conditionals (i.e. `#?(...)`) to write dialect-specific code, please follow the following order:
 
 ```clj
-#?(:bb      ...
+#?(:jolt    ...
+   :bb      ...
    :cljr    ...
    :lpy     ...
    :phel    ...
@@ -241,7 +244,13 @@ When using reader conditionals (i.e. `#?(...)`) to write dialect-specific code, 
    :default ...)
 ```
  
-This is important not only for consistency but also for ensuring your tests runs as expected since certain dialects, like Babashka, will use the Clojure branch of a reader conditional if it's listed higher than the Babashka branch of the reader conditional. 
+This is important not only for consistency but also for ensuring your tests runs as expected since certain dialects, like Babashka, will use the Clojure branch of a reader conditional if it's listed higher than the Babashka branch of the reader conditional.
+
+`:jolt` comes first for a sharper version of the same reason.
+Jolt's reader feature set is `{:jolt :bb :clj :default}`, so it matches `:bb` as well as its own key, and the first matching clause wins.
+A `:jolt` branch placed after `:bb` is therefore dead code, and nothing reports it: the test simply runs babashka's branch instead.
+Most of the time inheriting `:bb` is what you want, since a `:bb` branch usually solves the same non-JVM problems Jolt has, so only add a `:jolt` branch where Jolt genuinely differs from Babashka.
+Where it does, the branch has to come first. 
  
 ## Things to Avoid
 

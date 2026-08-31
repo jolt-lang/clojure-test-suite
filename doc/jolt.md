@@ -91,6 +91,42 @@ The full list is in Jolt's
 every tracked divergence is in
 [`test/conformance/known-divergences.edn`](https://github.com/jolt-lang/jolt/blob/main/test/conformance/known-divergences.edn).
 
+## CI
+
+`.github/workflows/jolt.yml` runs the suite on every push and pull request,
+and on demand via `workflow_dispatch` with an optional version input if you
+want to pin which Jolt gets tested.
+
+It does not gate on green, because Jolt does not pass this suite and is not
+meant to. It gates on **movement** against `jolt/baseline.txt`:
+
+- a namespace that got **worse** fails the run
+- a namespace that got **better** is reported, with the lines to paste into
+  the baseline, and the run still passes
+
+An improvement failing the build would be actively unhelpful while the
+language is under development, so the two directions are treated differently.
+
+The readable result is in the run's **Summary** tab: parity percentage,
+totals, and a table of whatever moved. The full per-namespace report uploads
+as an artifact.
+
+After a change that fixes something, regenerate the baseline and commit it
+with that change:
+
+```bash
+$ bb jolt-baseline
+wrote jolt/baseline.txt: 31 namespaces
+```
+
+The runner's `--report` flag is what feeds this. It prints one
+`CTS <namespace> <pass> <fail> <error>` line per namespace, and suppresses
+output from namespaces that passed, so what you read is only what broke:
+
+```bash
+$ jolt -M:jolt --report
+```
+
 ## Jolt's own gate
 
 Jolt vendors this suite as a submodule and runs it per-namespace against a

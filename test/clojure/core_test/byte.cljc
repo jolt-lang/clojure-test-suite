@@ -46,7 +46,19 @@
            1    1.1M
            #?@(:cljr [] :default [-1 -1.1M])]))
 
-    #?@(:bb
+    #?@(:jolt
+        [ ;; jolt throws outside 127 ... -128 as the JVM does. It reads :bb, so
+          ;; this branch has to precede the :bb one to be seen at all.
+         (is (p/thrown? (byte -128.000001)))
+         (is (p/thrown? (byte -129)))
+         (is (p/thrown? (byte 128)))
+         (is (p/thrown? (byte 127.000001)))
+         (is (p/thrown? (byte "0")))
+         (is (p/thrown? (byte :0)))
+         (is (p/thrown? (byte [0])))
+         (is (p/thrown? (byte nil)))]
+
+        :bb
         [] ;; byte constructions goes via boxed argument
 
         :cljr

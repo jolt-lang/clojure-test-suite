@@ -32,6 +32,9 @@
                                      :bar)))
                        (is (= 3 @counter))))
                    #?(:cljs nil ; Skipped due to ClojureScript's atypical macro expansion.
+                      ;; jolt reads :bb, but it raises here like the JVM, so it opts in first.
+                      :jolt (testing "when-let accepts exactly two"
+                              (is (p/thrown? (macroexpand '(when-let [x (range 5) y (range 5)])))))
                       :bb nil ; Skipped because of Babashka issue https://github.com/babashka/babashka/issues/1894
                       :default (testing "when-let accepts exactly two"
                                  (is (p/thrown? (macroexpand '(when-let [x (range 5) y (range 5)]))))))))

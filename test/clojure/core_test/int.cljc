@@ -37,7 +37,19 @@
            0    1/10
            0    -1/10]))
 
-    #?@(:bb
+    #?@(:jolt
+        [ ;; jolt throws outside the int range as the JVM does. It reads :bb,
+          ;; so this branch has to precede the :bb one to be seen at all.
+         (is (p/thrown? (int -2147483648.000001)))
+         (is (p/thrown? (int -2147483649)))
+         (is (p/thrown? (int 2147483648)))
+         (is (p/thrown? (int 2147483647.000001)))
+         (is (p/thrown? (int "0")))
+         (is (p/thrown? (int :0)))
+         (is (p/thrown? (int [0])))
+         (is (p/thrown? (int nil)))]
+
+        :bb
         []
 
         :cljr

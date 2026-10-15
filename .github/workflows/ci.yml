@@ -1,5 +1,9 @@
 name: tests
 
+# The other dialects are upstream's concern. In the jolt-lang fork these jobs
+# are inert, guarded by the repository check on each one, and Jolt is covered
+# by jolt.yml instead. Delete the `if:` lines to re-enable them here.
+
 on:
   pull_request:
   push:
@@ -13,6 +17,7 @@ env:
 jobs:
   test-jvm:
     runs-on: ubuntu-latest
+    if: github.repository == 'jank-lang/clojure-test-suite'
     steps:
       - uses: actions/checkout@v6
 
@@ -45,6 +50,7 @@ jobs:
 
   test-cljs:
     runs-on: ubuntu-latest
+    if: github.repository == 'jank-lang/clojure-test-suite'
     steps:
       - uses: actions/checkout@v6
 
@@ -91,6 +97,7 @@ jobs:
 
   test-bb:
     runs-on: ubuntu-latest
+    if: github.repository == 'jank-lang/clojure-test-suite'
     steps:
       - uses: actions/checkout@v6
 
@@ -126,6 +133,7 @@ jobs:
 
   test-clr:
     runs-on: ubuntu-latest
+    if: github.repository == 'jank-lang/clojure-test-suite'
     steps:
       - uses: actions/checkout@v6
 

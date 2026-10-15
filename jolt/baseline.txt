@@ -1,0 +1,34 @@
+# Jolt conformance baseline: <namespace> <fail> <error>
+# A namespace not listed here is expected to be clean.
+# Regenerate with: bb jolt-baseline
+clojure.core-test.abs 1 0
+clojure.core-test.bigint 3 0
+clojure.core-test.byte 1 0
+clojure.core-test.char 1 0
+clojure.core-test.contains-qmark 0 9
+clojure.core-test.dec 1 0
+clojure.core-test.double-qmark 3 0
+clojure.core-test.eq 1 0
+clojure.core-test.float 1 0
+clojure.core-test.inc 1 0
+clojure.core-test.int-qmark 3 0
+clojure.core-test.lazy-seq 1 2
+clojure.core-test.list 1 0
+clojure.core-test.minus 2 0
+clojure.core-test.mod 22 0
+clojure.core-test.neg-int-qmark 1 0
+clojure.core-test.not-eq 1 0
+clojure.core-test.nth 0 7
+clojure.core-test.num 0 1
+clojure.core-test.parse-uuid 3 0
+clojure.core-test.plus 11 0
+clojure.core-test.plus-squote 9 0
+clojure.core-test.pos-int-qmark 1 0
+clojure.core-test.quot 25 0
+clojure.core-test.rem 16 0
+clojure.core-test.short 1 0
+clojure.core-test.star 11 0
+clojure.core-test.star-squote 9 0
+clojure.core-test.transient 4 0
+clojure.core-test.vec 1 0
+clojure.string-test.replace 7 0

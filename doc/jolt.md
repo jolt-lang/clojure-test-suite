@@ -47,25 +47,26 @@ $ jolt -M:jolt
 
 ## Reader conditionals
 
-**A `:jolt` branch must come before `:bb`.**
+**Jolt does not read `:bb`.**
 
-Jolt's reader feature set is `{:jolt :bb :clj :default}` and the first
-matching clause wins, so Jolt matches a `:bb` branch as readily as its own.
-A `:jolt` branch listed after `:bb` never runs, and nothing warns you:
+Jolt's reader feature set is `{:jolt :clj :default}`. Up to 0.7.x it also
+read `:bb`, and the baseline was first recorded that way. Since 0.8 a file
+with a `:bb` branch and no `:jolt` branch sends Jolt down its `:clj` branch,
+which often carries JVM-only expectations (primitive vs boxed dispatch, the
+JVM's `not=` on NaN):
 
 ```clj
-#?(:bb :BB :jolt :JOLT)   ;=> :BB
-#?(:jolt :JOLT :bb :BB)   ;=> :JOLT
+#?(:bb :BB :clj :CLJ)               ;=> :CLJ
+#?(:jolt :JOLT :bb :BB :clj :CLJ)   ;=> :JOLT
 ```
 
-Inheriting `:bb` is usually right. A `:bb` branch tends to solve the same
-non-JVM problems Jolt has, which is why Jolt reads that key on purpose. Only
-add a `:jolt` branch where Jolt genuinely differs from Babashka, and when you
-do, put it first. See [writing-tests.md](writing-tests.md#reader-conditional-order).
+Where the `:bb` branch is the right one for Jolt, add a `:jolt` branch that
+matches it, listed first. See
+[writing-tests.md](writing-tests.md#reader-conditional-order).
 
-Watch for `#?@(:bb [] ...)` and `#?(:bb nil ...)`. Those skip the assertion
-under Jolt rather than failing it, so a namespace can look green while
-testing nothing.
+Watch for `#?@(:jolt [] ...)` and `#?(:jolt nil ...)`. Those skip the
+assertion under Jolt rather than failing it, so a namespace can look green
+while testing nothing.
 
 ## Differences worth knowing before you conditionalize
 

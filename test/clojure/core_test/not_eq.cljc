@@ -9,8 +9,10 @@
     (eq/tests (complement not=))
     ;; There is some arguably buggy behavior in JVM Clojure with not=
     ;; https://ask.clojure.org/index.php/14298/incorrect-result-when-evaluating-not-on-nans
+    ;; Jolt matches bb here, not the JVM.
     (testing "If ##NaNs are ="
-      #?(:bb      (is (not= ##NaN ##NaN))
+      #?(:jolt    (is (not= ##NaN ##NaN))
+         :bb      (is (not= ##NaN ##NaN))
          :cljr    (is (not (not= ##NaN ##NaN)))
          :clj     (is (not (not= ##NaN ##NaN)))
          :default (is (not= ##NaN ##NaN))))))

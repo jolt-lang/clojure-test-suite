@@ -5,7 +5,10 @@
 
 (defn f [])
 
-#?(:bb
+#?(:jolt
+   nil
+
+   :bb
    nil
 
    :clj
@@ -27,7 +30,27 @@
 (when-var-exists num
  (deftest test-num
    (testing "positive cases"
-     #?@(:bb
+     ;; Jolt has no primitive/boxed split for the :clj checks to observe,
+     ;; so it takes the same no-op path as bb.
+     #?@(:jolt
+         [(is (NaN? (num ##NaN)))
+          (are [n] (and (= n (num n))
+                        (= (type n) (type (num n))))
+            0
+            0.1
+            1/2
+            1N
+            1.0M
+            (short 1)
+            (byte 1)
+            (int 1)
+            (long 1)
+            (float 1.0)
+            (double 1.0)
+            nil
+            ##Inf)]
+
+         :bb
          [(is (NaN? (num ##NaN)))
           (are [n] (and (= n (num n))
                         (= (type n) (type (num n))))

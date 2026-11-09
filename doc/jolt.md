@@ -25,8 +25,8 @@ $ jolt -e '(+ 1 2)'
 3
 ```
 
-Linux x86_64 needs glibc 2.35 or newer, and macOS needs 14 or newer. Anything
-else wants a [build from source](https://github.com/jolt-lang/jolt/blob/main/CONTRIBUTING.md#build-from-source).
+Linux x86_64 needs glibc 2.17 or newer, and macOS (arm64 or Intel) needs 11 or
+newer. Anything else wants a [build from source](https://github.com/jolt-lang/jolt/blob/main/CONTRIBUTING.md#build-from-source).
 
 ## Running the Tests
 
